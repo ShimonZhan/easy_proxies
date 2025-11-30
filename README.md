@@ -1,5 +1,7 @@
 # Easy Proxies
 
+[English](README_EN.md) | 简体中文
+
 基于 [sing-box](https://github.com/SagerNet/sing-box) 的代理节点池管理工具，支持多协议、多节点自动故障转移和负载均衡。
 
 ## 特性
@@ -7,6 +9,7 @@
 - **多协议支持**: VMess、VLESS、Hysteria2、Shadowsocks、Trojan
 - **多种传输层**: TCP、WebSocket、HTTP/2、gRPC、HTTPUpgrade
 - **订阅链接支持**: 自动从订阅链接获取节点，支持 Base64、Clash YAML 等格式
+- **订阅定时刷新**: 自动定时刷新订阅，支持 WebUI 手动触发（⚠️ 刷新会导致连接中断）
 - **节点池模式**: 自动故障转移、负载均衡
 - **多端口模式**: 每个节点独立监听端口
 - **Web 监控面板**: 实时查看节点状态、延迟探测、一键导出节点
@@ -300,6 +303,41 @@ management:
 - 如果 `password` 为空或不设置，则无需密码即可访问
 - 设置密码后，首次访问会弹出登录界面
 - 登录成功后，session 会保存 7 天
+
+### 订阅定时刷新
+
+支持定时自动刷新订阅链接，获取最新节点：
+
+```yaml
+subscription_refresh:
+  enabled: true                 # 启用定时刷新
+  interval: 1h                  # 刷新间隔（默认 1 小时）
+  timeout: 30s                  # 获取订阅超时
+  health_check_timeout: 60s     # 新节点健康检查超时
+  drain_timeout: 30s            # 旧实例排空超时
+  min_available_nodes: 1        # 最少可用节点数，低于此值不切换
+```
+
+> ⚠️ **重要提示：订阅刷新会导致连接中断**
+>
+> 订阅刷新时，程序会**重启 sing-box 内核**以加载新节点配置。这意味着：
+>
+> - **所有现有连接将被断开**
+> - 正在进行的下载、流媒体播放等会中断
+> - 客户端需要重新建立连接
+>
+> **建议：**
+> - 将刷新间隔设置为较长时间（如 `1h` 或更长）
+> - 避免在业务高峰期手动触发刷新
+> - 如果对连接稳定性要求极高，建议关闭此功能（`enabled: false`）
+
+**WebUI 和 API 支持：**
+
+- WebUI 显示订阅状态（节点数、上次刷新时间、错误信息）
+- 支持手动触发刷新按钮
+- API 端点：
+  - `GET /api/subscription/status` - 获取订阅状态
+  - `POST /api/subscription/refresh` - 手动触发刷新
 
 ## 端口说明
 
