@@ -6,6 +6,8 @@ management:
   listen: 0.0.0.0:9090
   probe_target: www.apple.com:80
   password: ""  # WebUI 访问密码，为空则不需要密码（可选）
+  api_key: ""   # 订阅 API Key，用于 URL 参数认证（可选）
+                # 配置后可通过 /api/export?key=xxx 直接订阅
 listener:
   address: 0.0.0.0
   port: 2323
