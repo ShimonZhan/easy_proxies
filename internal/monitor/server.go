@@ -202,8 +202,8 @@ func (s *Server) handleNodes(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	// 只返回初始检查通过的可用节点
-	payload := map[string]any{"nodes": s.mgr.SnapshotFiltered(true)}
+	// 根据配置决定是否过滤不可用节点
+	payload := map[string]any{"nodes": s.mgr.SnapshotFiltered(s.cfg.HideUnavailable)}
 	writeJSON(w, payload)
 }
 
@@ -465,8 +465,8 @@ func (s *Server) handleExport(w http.ResponseWriter, r *http.Request) {
 		format = "http"
 	}
 
-	// 只导出初始检查通过的可用节点
-	snapshots := s.mgr.SnapshotFiltered(true)
+	// 根据配置决定是否过滤不可用节点
+	snapshots := s.mgr.SnapshotFiltered(s.cfg.HideUnavailable)
 	var lines []string
 
 	for _, snap := range snapshots {

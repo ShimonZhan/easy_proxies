@@ -63,11 +63,16 @@ go build -tags "with_utls with_quic with_grpc" -o easy-proxies ./cmd/easy_proxie
 ```yaml
 mode: pool                    # Mode: pool, multi-port, or hybrid
 log_level: info               # Log level: debug, info, warn, error
-external_ip: ""               # External IP for export (recommended for Docker)
+external_ip: "1.2.3.4"        # External IP for export (replaces 0.0.0.0)
 
 # Subscription URLs (optional, multiple supported)
 subscriptions:
   - "https://example.com/subscribe"
+
+# Subscription Auto-Refresh
+subscription_refresh:
+  enabled: true               # Enable auto-refresh
+  interval: 6h                # Refresh interval (default 1h)
 
 # Management Interface
 management:
@@ -408,6 +413,28 @@ management:
 
 Copy subscription URLs directly from the WebUI export dialog.
 
+### Surge Usage
+
+Add subscription URL in Surge:
+
+1. Open Surge → Proxy → External Proxy List
+2. Add URL: `http://your-ip:9090/api/export?format=surge&key=your-secret-key`
+3. Surge will auto-fetch and update proxy list
+
+**Export Format Examples:**
+
+HTTP inbound mode (`inbound_type: http`):
+```
+NodeName = http, 1.2.3.4, 29000, username, password
+```
+
+Shadowsocks inbound mode (`inbound_type: ss`):
+```
+NodeName = ss, 1.2.3.4, 29000, encrypt-method=aes-128-gcm, password=your-password
+```
+
+> Node names with special characters or emoji are preserved and auto-quoted for Surge compatibility.
+
 ### Health Check Mechanism
 
 Auto health check on startup, then periodic checks:
@@ -492,7 +519,7 @@ Use `network_mode: host` for direct host network access:
 # docker-compose.yml
 services:
   easy-proxies:
-    image: ghcr.io/jasonwong1991/easy_proxies:latest
+    image: ghcr.io/shimonzhan/easy_proxies:latest
     container_name: easy-proxies
     restart: unless-stopped
     network_mode: host
@@ -513,7 +540,7 @@ Manually specify port mappings:
 # docker-compose.yml
 services:
   easy-proxies:
-    image: ghcr.io/jasonwong1991/easy_proxies:latest
+    image: ghcr.io/shimonzhan/easy_proxies:latest
     container_name: easy-proxies
     restart: unless-stopped
     ports:

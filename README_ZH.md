@@ -409,6 +409,28 @@ management:
 
 在 WebUI 导出弹窗中可直接复制订阅地址。
 
+### Surge 使用方法
+
+在 Surge 中添加订阅：
+
+1. 打开 Surge → 代理 → 外部代理列表
+2. 添加 URL：`http://your-ip:9090/api/export?format=surge&key=your-secret-key`
+3. Surge 会自动获取并更新代理列表
+
+**导出格式示例：**
+
+HTTP 入站模式（`inbound_type: http`）：
+```
+节点名称 = http, 1.2.3.4, 29000, username, password
+```
+
+Shadowsocks 入站模式（`inbound_type: ss`）：
+```
+节点名称 = ss, 1.2.3.4, 29000, encrypt-method=aes-128-gcm, password=your-password
+```
+
+> 节点名称支持特殊符号和 emoji，会自动处理引号以兼容 Surge 格式。
+
 ### 健康检查机制
 
 程序启动时会自动对所有节点进行健康检查，之后定期检查：
