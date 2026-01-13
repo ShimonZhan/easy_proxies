@@ -110,7 +110,7 @@ func newPool(ctx context.Context, _ adapter.Router, logger log.ContextLogger, ta
 	// Register nodes immediately if monitor is available
 	if monitorMgr != nil {
 		logger.Info("registering ", len(normalized.Members), " nodes to monitor")
-		for _, memberTag := range normalized.Members {
+		for idx, memberTag := range normalized.Members {
 			// Acquire shared state for this tag (creates if not exists)
 			state := acquireSharedState(memberTag)
 
@@ -122,6 +122,7 @@ func newPool(ctx context.Context, _ adapter.Router, logger log.ContextLogger, ta
 				Mode:          meta.Mode,
 				ListenAddress: meta.ListenAddress,
 				Port:          meta.Port,
+				Index:         idx,
 			}
 			entry := monitorMgr.Register(info)
 			if entry != nil {
@@ -189,7 +190,7 @@ func (p *poolOutbound) initializeMembersLocked() error {
 	}
 
 	members := make([]*memberState, 0, len(p.options.Members))
-	for _, tag := range p.options.Members {
+	for idx, tag := range p.options.Members {
 		detour, loaded := p.manager.Outbound(tag)
 		if !loaded {
 			return E.New("pool member not found: ", tag)
@@ -215,6 +216,7 @@ func (p *poolOutbound) initializeMembersLocked() error {
 				Mode:          meta.Mode,
 				ListenAddress: meta.ListenAddress,
 				Port:          meta.Port,
+				Index:         idx,
 			}
 			entry := p.monitor.Register(info)
 			if entry != nil {
