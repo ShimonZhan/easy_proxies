@@ -28,7 +28,7 @@ func Build(cfg *config.Config) (option.Options, error) {
 	var failedNodes []string
 	usedTags := make(map[string]int) // Track tag usage for uniqueness
 
-	for _, node := range cfg.Nodes {
+	for idx, node := range cfg.Nodes {
 		baseTag := sanitizeTag(node.Name)
 		if baseTag == "" {
 			baseTag = fmt.Sprintf("node-%d", len(memberTags)+1)
@@ -55,6 +55,8 @@ func Build(cfg *config.Config) (option.Options, error) {
 			Name: node.Name,
 			URI:  node.URI,
 			Mode: cfg.Mode,
+			// Preserve original node order (important for monitor/UI/export ordering in multi-port/hybrid modes).
+			Index: idx,
 		}
 		// For multi-port and hybrid modes, use per-node port
 		if cfg.Mode == "multi-port" || cfg.Mode == "hybrid" {
